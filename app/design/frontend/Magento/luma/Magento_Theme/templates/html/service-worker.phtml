@@ -1,7 +1,36 @@
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-            .register('./sw.js')
-            .then(function() { console.log('Service Worker Registered'); });
-    }
+
+    require([
+        'jquery',
+        'Magento_Customer/js/customer-data'
+    ], function($, customerData) {
+        $('.product-items').on('click', '.action.tocart.primary', () => {
+            console.log('Clicked the button');
+            navigator.serviceWorker.controller.postMessage({update: 'cart'});
+        });
+
+        function updateCart() {
+            var sections = ['cart'];
+            customerData.invalidate(sections);
+            customerData.reload(sections, true);
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('/sw.js')
+                .then(function() {
+                    return navigator.serviceWorker.ready;
+                })
+                .then(function(reg) {
+                    navigator.serviceWorker.addEventListener('message', function(event){
+                        console.log('Added event listener to serviceWorker');
+                        updateCart();
+                    });
+                }).catch(function(error) {
+                    console.log('Error : ', error);
+                });
+        }
+    });
+
+
 </script>
