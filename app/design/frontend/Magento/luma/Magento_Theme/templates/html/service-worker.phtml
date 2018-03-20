@@ -4,8 +4,12 @@
         'jquery',
         'Magento_Customer/js/customer-data'
     ], function($, customerData) {
-        $('.product-items').on('click', '.action.tocart.primary', () => {
-            console.log('Clicked the button');
+
+        $(document).on('ajax:addToCart', (event) => {
+            navigator.serviceWorker.controller.postMessage({update: 'cart'});
+        });
+
+        $(document).on('ajax:removeFromCart', (event) => {
             navigator.serviceWorker.controller.postMessage({update: 'cart'});
         });
 
@@ -23,11 +27,10 @@
                 })
                 .then(function(reg) {
                     navigator.serviceWorker.addEventListener('message', function(event){
-                        console.log('Added event listener to serviceWorker');
                         updateCart();
                     });
                 }).catch(function(error) {
-                    console.log('Error : ', error);
+                    console.error(error);
                 });
         }
     });
